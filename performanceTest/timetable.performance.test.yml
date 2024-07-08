@@ -1,0 +1,61 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+
+before:
+  flow:
+    # Login to obtain authentication token
+    - post:
+        url: "/user/login"
+        json:
+          email: "johndoe@gmail.com" # TODO :Replace with a valid admin email
+          password: "asdQWE#123" # TODO :Replace with a valid admin password
+        capture:
+          json: "$.token"
+          as: "token"
+
+scenarios:
+  # Scenario to create a new timetable
+  - name: "Create timetable"
+    flow:
+      - post:
+          url: "/timetable"
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            courseId: "65f290d49e2e49278bfac9f5" # TODO :Replace with a valid course ID
+            dayOfWeek: "Wednesday"
+            startTime: "09:00"
+            endTime: "11:00"
+            roomId: "65f159367c5d87d1e922f9e7" # TODO :Replace with a valid room ID
+            resourceId: "65fd402d21f8f1b277daf013" # TODO :Replace with a valid resource ID
+
+  # Scenario to get all timetables
+  - name: "Get All timetables"
+    flow:
+      - get:
+          url: "/timetable/"
+          headers:
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+
+  # Scenario to update timetable details
+  - name: "Update timetable"
+    flow:
+      - put:
+          url: "/timetable/65fd7c333014763b30709855"  # TODO :Replace with the created time table ID
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            startTime: "10:00"
+
+  # Scenario to delete a timetable
+  - name: "Delete timetable"
+    flow:   
+      - delete:
+          url: "/timetable/65fd7c333014763b30709855" # TODO :Replace the created valid timetable ID
+          headers:
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization

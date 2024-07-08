@@ -1,0 +1,59 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+
+before:
+  flow:
+    # Login to obtain authentication token
+    - post:
+        url: "/user/login"
+        json:
+          email: "johndoe@gmail.com" # TODO :Replace with a valid admin email
+          password: "asdQWE#123" # TODO :Replace with a valid admin password
+        capture:
+          json: "$.token"
+          as: "token"
+
+scenarios:
+  # Scenario to create a new Resource
+  - name: "Create Resource"
+    flow:
+      - post:
+          url: "/resource"
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            resourceNo: "P105"
+            name: "Projector"
+            description: "Presentations"
+            location: "A101"
+
+  # Scenario to get all Resources
+  - name: "Get All Resources"
+    flow:
+      - get:
+          url: "/resource/"
+          headers:
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+
+  # Scenario to update Resource details
+  - name: "Update Resource"
+    flow:
+      - put:
+          url: "/resource/65f27b46cf65db1106ca7a01"  # TODO :Replace with the created resource ID
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            floor: 7
+
+  # Scenario to delete a Resource
+  - name: "Delete Resource"
+    flow:
+      - delete:
+          url: "/resource/65f27b46cf65db1106ca7a01" # TODO :Replace with the created resource ID
+          headers:
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization

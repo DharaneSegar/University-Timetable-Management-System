@@ -1,0 +1,69 @@
+config:
+  target: "http://localhost:8080"  
+  phases:
+    - duration: 60
+      arrivalRate: 10
+
+before:
+  flow:
+    - post:
+        url: "/user/login"
+        json:
+          email: "johndoe@gmail.com" # TODO :Replace with a valid admin email
+          password: "asdQWE#123" # TODO :Replace with a valid admin password
+        capture:
+          json: "$.token"
+          as: "token"
+
+scenarios:
+  # Scenario to create a new booking
+  - name: "Create Booking"
+    flow:
+      - post:
+          url: "/booking"
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            userId: "65f290d49e2e49278bfac9f5" # TODO :Replace with a valid user ID
+            reason: "Test booking reason"
+            dayOfWeek: "Thursday"
+            startTime: "9:00 AM"
+            endTime: "10:00 AM"
+            roomId: "65f159367c5d87d1e922f9e7" # TODO :Replace with a valid room ID
+            resourceId: "65f27b46cf65db1106ca7a01" # TODO :Replace with a valid resource ID
+
+  # Scenario to get all bookings
+  - name: "Get All Bookings"
+    flow:
+      - get:
+          url: "/booking"
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+
+  # Scenario to update a booking
+  - name: "Update Booking"
+    flow:
+      - put:
+          url: "/booking/65f58ec9c7c2d9d41a4aca19"  # TODO :Replace with the created booking ID to be updated
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            userId: "65f290d49e2e49278bfac9f5" # TODO :Replace with a valid user ID
+            reason: "Updated booking reason"
+            dayOfWeek: "Tuesday"
+            startTime: "10:00 AM"
+            endTime: "11:00 AM"
+            roomId: "65f159367c5d87d1e922f9e7" # TODO :Replace with a valid room ID
+            resourceId: "65f27b46cf65db1106ca7a01" # TODO :Replace with a valid resource ID
+
+  # Scenario to delete a booking
+  - name: "Delete Booking"
+    flow:
+      - delete:
+          url: "/booking/65f58ec9c7c2d9d41a4aca19" # TODO :Replace with the created booking ID to be deleted
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization

@@ -1,0 +1,61 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+
+before:
+  flow:
+    - post:
+        url: "/user/login"
+        json:
+          email: "johndoe@gmail.com" # TODO :Replace with a valid admin email
+          password: "asdQWE#123" # TODO :Replace with a valid admin password
+        capture:
+          json: "$.token"
+          as: "token"
+
+scenarios:
+  # Scenario to create a courses
+  - name: "Create Course"
+    flow:
+      - post:
+          url: "/course"
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            code: "CSE101"
+            name: "Introduction to Computer Science"
+            description: "This course provides an introduction to the fundamental concepts of computer science."
+            credits: 3
+
+  # Scenario to update a courses
+  - name: "Update Course"
+    flow:
+      - put:
+          url: "/course/65f143aba5715fbb827aae14"  # TODO :Replace with the created course ID
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # TODO :Use the global token for authorization
+          json:
+            description: "Updated course description"
+            credits: 4
+
+  # Scenario to delete a course
+  - name: "Delete Course"
+    flow:
+      - delete:
+          url: "/course/65f143aba5715fbb827aae14"  # TODO :Replace with the created course ID
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+
+  # Scenario to get all courses
+  - name: "Get All Courses"
+    flow:
+      - get:
+          url: "/course"
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization

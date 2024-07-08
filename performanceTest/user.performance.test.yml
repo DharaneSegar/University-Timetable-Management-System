@@ -1,0 +1,65 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+
+before:
+  flow:
+    - post:
+        url: "/user/login"
+        json:
+          email: "johndoe@gmail.com" # TODO :Replace with a valid admin email
+          password: "asdQWE#123" # TODO :Replace with a valid admin password
+        capture:
+          json: "$.token"
+          as: "token"
+
+scenarios:
+  # Scenario to create a new user
+  - name: "Create User"
+    flow:
+      - post:
+          url: "/user"
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            firstname: "Mark"
+            lastname: "Nick"
+            email: "marknick8@gmail.com"
+            password: "asdQWE#123"
+            nic: "223656789"
+            role: "faculty"
+            address: "123 Main St"
+            phone: "123-456-7890"
+            dob: "1990-01-01"
+            joinedDate: "2021-06-01"
+
+  # Scenario to get all users
+  - name: "Get All Users"
+    flow:
+      - get:
+          url: "/user"
+          headers:
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+
+  # Scenario to update user details
+  - name: "Update User"
+    flow:
+      - put:
+          url: "/user/65fe6bdbcfe1481070d0cdc7"  # TODO :Replace with the created user ID
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            firstname: "Johny"
+
+  # Scenario to delete a user
+  - name: "Delete User"
+    flow:
+      - delete:
+          url: "/user/65fe6bdbcfe1481070d0cdc7" # TODO :Replace with the created user ID
+          headers:
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+

@@ -1,0 +1,62 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+
+before:
+  flow:
+    # Login to obtain authentication token
+    - post:
+        url: "/user/login"
+        json:
+          email: "johndoe@gmail.com" # TODO :Replace with a valid admin email
+          password: "asdQWE#123" # TODO :Replace with a valid admin password
+        capture:
+          json: "$.token"
+          as: "token"
+
+scenarios:
+  # Scenario to create a new room
+  - name: "Create Room"
+    flow:
+      - post:
+          url: "/room"
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            roomNo: "B101"
+            description: "Lecture hall"
+            building: "Main building"
+            floor: 4
+            noOfSeats: 150
+
+  # Scenario to get all Rooms
+  - name: "Get All Rooms"
+    flow:
+      - get:
+          url: "/room/"
+          headers:
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+
+  # Scenario to update Room details
+  - name: "Update Room"
+    flow:
+      - put:
+          url: "/room/65f159367c5d87d1e922f9e7"  # TODO :Replace with the created room ID
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            description: "Lecture hall with whiteboard"
+
+  Scenario to delete a Room
+  - name: "Delete Room"
+   flow:
+     - delete:
+         url: "/room/65f159367c5d87d1e922f9e7" # TODO :Replace with the created room ID
+         headers:
+           Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+
+

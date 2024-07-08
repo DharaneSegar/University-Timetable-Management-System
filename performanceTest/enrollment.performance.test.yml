@@ -1,0 +1,60 @@
+config:
+  target: "http://localhost:8080"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+
+before:
+  flow:
+    # Perform login to obtain authentication token
+    - post:
+        url: "/user/login"
+        json:
+          email: "johndoe@gmail.com" # TODO :Replace with a valid admin email
+          password: "asdQWE#123" # TODO :Replace with a valid admin password
+        capture:
+          json: "$.token"
+          as: "token"
+
+scenarios:
+  - name: "Enroll student"
+    flow:
+      # Enroll a student in a course
+      - post:
+          url: "/enrollment"
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            studentId: '65fac79528c6ea39c3d3a886'  # TODO :Replace with a valid student ID
+            courseId: '65f290d49e2e49278bfac9f5'   # TODO :Replace with a valid course ID
+
+  - name: "Update enrollment"
+    flow:
+      # Update enrollment details
+      - put:
+          url: "/enrollment/65fd21043f779a7617e584ba"  # TODO :Replace with the created enrollment ID
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+          json:
+            courseId: "65facb7b2da33e0979ec12ef"   # TODO :Replace with a valid course ID
+
+  - name: "Delete Enrollment"
+    flow:
+      # Delete enrollment
+      - delete:
+          url: "/enrollment/65fd21043f779a7617e584ba"  # TODO :Replace with the created enrollment ID
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
+
+  # Scenario to get all enrollments
+  - name: "Get All Enrollments"
+    flow:
+      # Retrieve all enrollments
+      - get:
+          url: "/enrollment"
+          headers:
+            Content-Type: application/json
+            Authorization: "Bearer {{ token }}"  # Use the global token for authorization
